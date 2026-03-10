@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Registration Form</title>
+</head>
+
+<body style="font-family:Arial; text-align:center; margin-top:40px;">
+
+<h2>Registration Form</h2>
+
+<form onsubmit="saveData(event)" style="display:inline-block; text-align:left;">
+
+<!-- Name -->
+<label>Name</label><br>
+<input type="text" id="name" oninput="validateName()" style="padding:5px;">
+<p id="nameError" style="color:red;"></p>
+
+<!-- Email -->
+<label>Email</label><br>
+<input type="text" id="email" oninput="validateEmail()" style="padding:5px;">
+<p id="emailError" style="color:red;"></p>
+
+<!-- Phone -->
+<label>Phone</label><br>
+<input type="text" id="phone" oninput="validatePhone()" style="padding:5px;">
+<p id="phoneError" style="color:red;"></p>
+
+<!-- Password -->
+<label>Password</label><br>
+<input type="password" id="password" oninput="checkStrength()" style="padding:5px;">
+<button type="button" onclick="togglePassword()">Show</button>
+
+<p id="strength"></p>
+
+<br>
+<button type="submit" style="padding:8px 20px;">Register</button>
+
+</form>
+
+<script>
+
+// Name Validation
+function validateName(){
+    let name = document.getElementById("name").value
+    let error = document.getElementById("nameError")
+
+    if(name.length < 3){
+        error.innerText = "Name must be at least 3 characters"
+    } else{
+        error.innerText = ""
+    }
+}
+
+// Email Validation
+function validateEmail(){
+    let email = document.getElementById("email").value
+    let error = document.getElementById("emailError")
+
+    if(!email.includes("@")){
+        error.innerText = "Invalid Email"
+    } else{
+        error.innerText = ""
+    }
+}
+
+// Phone Validation
+function validatePhone(){
+    let phone = document.getElementById("phone").value
+    let error = document.getElementById("phoneError")
+
+    if(phone.length != 10){
+        error.innerText = "Phone must be 10 digits"
+    } else{
+        error.innerText = ""
+    }
+}
+
+// Password Strength
+function checkStrength(){
+    let pass = document.getElementById("password").value
+    let strength = document.getElementById("strength")
+
+    if(pass.length < 6){
+        strength.innerText = "Weak Password"
+        strength.style.color = "red"
+    }
+    else if(pass.length < 10){
+        strength.innerText = "Medium Password"
+        strength.style.color = "orange"
+    }
+    else{
+        strength.innerText = "Strong Password"
+        strength.style.color = "green"
+    }
+}
+
+// Show / Hide Password
+function togglePassword(){
+    let pass = document.getElementById("password")
+
+    if(pass.type === "password"){
+        pass.type = "text"
+    }else{
+        pass.type = "password"
+    }
+}
+
+// Save to localStorage
+function saveData(e){
+    e.preventDefault()
+
+    let name = document.getElementById("name").value
+    let email = document.getElementById("email").value
+    let phone = document.getElementById("phone").value
+    let password = document.getElementById("password").value
+
+    let user = {
+        name:name,
+        email:email,
+        phone:phone,
+        password:password
+    }
+
+    let submissions = JSON.parse(localStorage.getItem("submissions")) || []
+
+    submissions.push(user)
+
+    localStorage.setItem("submissions", JSON.stringify(submissions))
+
+    alert("Registration Saved!")
+
+}
+
+</script>
+
+</body>
+</html>
