@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Weather Dashboard</title>
+
+<style>
+body{
+    font-family: Arial, sans-serif;
+    background:#0f172a;
+    color:white;
+    text-align:center;
+}
+
+h1{
+    margin-top:20px;
+}
+
+#weatherContainer{
+    display:flex;
+    justify-content:center;
+    gap:20px;
+    margin-top:30px;
+}
+
+.card{
+    background:#1e293b;
+    padding:20px;
+    width:180px;
+    border-radius:12px;
+    box-shadow:0 4px 10px rgba(0,0,0,0.4);
+}
+
+.temp{
+    font-size:28px;
+    font-weight:bold;
+}
+
+.emoji{
+    font-size:40px;
+}
+
+.spinner{
+    margin-top:30px;
+    font-size:20px;
+}
+
+.error{
+    color:#ff6b6b;
+}
+</style>
+
+</head>
+<body>
+
+<h1>Weather Dashboard</h1>
+
+<button onclick="loadWeather()">Get Weather</button>
+
+<div id="spinner" class="spinner"></div>
+
+<div id="weatherContainer"></div>
+
+<script>
+
+const cities = [
+    {name:"Delhi", lat:28.61, lon:77.23},
+    {name:"Mumbai", lat:19.07, lon:72.87},
+    {name:"Bangalore", lat:12.97, lon:77.59}
+]
+
+function weatherEmoji(code){
+    if(code === 0) return "☀️ Clear"
+    if(code <= 3) return "⛅ Cloudy"
+    if(code <= 48) return "🌫 Fog"
+    if(code <= 67) return "🌧 Rain"
+    if(code <= 77) return "❄️ Snow"
+    if(code <= 95) return "⛈ Storm"
+    return "🌍"
+}
+
+async function loadWeather(){
+
+    const container = document.getElementById("weatherContainer")
+    const spinner = document.getElementById("spinner")
+
+    container.innerHTML = ""
+    spinner.innerHTML = "Loading weather..."
+
+    try{
+
+        const requests = cities.map(city =>
+            fetch(`https://api.open-meteo.com/v1/forecast?latitude=${city.lat}&longitude=${city.lon}&current_weather=true`)
+            .then(res => res.json())
+        )
+
+        const results = await Promise.all(requests)
+
+        spinner.innerHTML = ""
+
+        results.forEach((data,index)=>{
+
+            const city = cities[index]
+            const temp = data.current_weather.temperature
+            const code = data.current_weather.weathercode
+            const condition = weatherEmoji(code)
+
+            const card = document.createElement("div")
+            card.className = "card"
+
+            card.innerHTML = `
+                <h3>${city.name}</h3>
+                <div class="emoji">${condition.split(" ")[0]}</div>
+                <div class="temp">${temp}°C</div>
+                <p>${condition}</p>
+            `
+
+            container.appendChild(card)
+
+        })
+
+    }
+    catch(err){
+
+        spinner.innerHTML = ""
+        container.innerHTML = `<p class="error">⚠️ Failed to fetch weather data</p>`
+        console.error(err)
+
+    }
+}
+
+</script>
+
+</body>
+</html>
